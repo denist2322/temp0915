@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{common/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>페이지 이름</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+</head>
+
+<main layout:fragment="main">
+
+
+    <headerUnder class="top-bar h-12 flex">
+        <nav class="top-bar__menu-box-1 w-full flex justify-center">
+            <div class="flex h-full">
+                <span class="flex items-center text-3xl pt-6">SHOPPING CART</span>
+            </div>
+        </nav>
+    </headerUnder>
+
+    <mainSecond>
+        <h2 class="h-10 ml-2 mt-4 text-xl leading-10 border-b-2 border-black">상품목록</h2>
+    </mainSecond>
+
+    <!-- 장바구니 테이블 시작 -->
+    <mainthird>
+        <table class="w-full h-2/5">
+            <colgroup class="#">
+                <col width="3%"/>
+                <col width="30%"/>
+                <col width="20%"/>
+                <col width="12%"/>
+                <col width="20%"/>
+                <col width="15%"/>
+            </colgroup>
+            <thead class="h-12 items-center">
+
+            <tr class="border-b-2 border-gray-200 mb-6">
+                <th>
+                    <input type="checkbox" id="cbx_chkAll" />
+                </th>
+                <th class="justify-center">상품정보</th>
+                <th class=""></th>
+                <th class="justify-center">수량</th>
+                <th class="justify-center">주문금액</th>
+                <th class="justify-center">삭제</th>
+            </tr>
+
+            <!-- 반복해서 테이블 데이터 생성 -->
+            </thead>
+            <div th:each="shoppingCart : ${shoppingCartList}">
+                <tbody class="border-b-2 border-gray-200">
+                <tr>
+                    <th class="justify-center">
+                        <input type="checkbox" th:if="${shoppingCart.checked==1}" th:id="'chk'+${shoppingCart.id}" th:onchange="'javascript:checkPrice('+ ${shoppingCart.cartTotalPrice} + ',' + ${shoppingCart.id} +')'" checked="on"/>
+                        <input type="checkbox" th:if="${shoppingCart.checked==0}" th:id="'chk'+${shoppingCart.id}" th:onchange="'javascript:checkPrice('+ ${shoppingCart.cartTotalPrice} + ',' + ${shoppingCart.id} +')'"/>
+                    </th>
+
+                    <!-- 메인 이미지 -->
+                    <th class="flex h-full">
+                        <ul class="flex w-full items-center justify-center h-full p-6">
+                            <li>
+                                <a href="#">
+                                    <img class="w-full product_img"
+                                         th:src="'/product_image/'+${shoppingCart.product.title} + '/' + ${shoppingCart.product.mainImage}"
+                                         alt="" >
+                                </a>
+                            </li>
+                        </ul>
+                    </th>
+
+                    <!-- 상품명, 색상, 사이즈, 갯수 -->
+                    <th class="">
+                        <div>
+                            <span class="block w-full">[[${shoppingCart.product.title}]]</span>
+                            <span class="block w-full">[[${shoppingCart.cartColor}]] / [[${shoppingCart.cartSize}]]</span>
+                            <span id="resultBox"></span>
+                        </div>
+                    </th>
+                    <th>
+                        <span class="block w-full">[[${shoppingCart.cartCount}]]</span>
+                    </th>
+                    <th class="price">
+                        [[${shoppingCart.cartTotalPrice}]]
+                    <th>
+                        <a th:href="'/deleteCart?id='+${shoppingCart.id}"><i class="fa-solid fa-trash"></i></a>
+                    </th>
+                </tr>
+                </tbody>
+            </div>
+        </table>
+        <!-- 장바구니 테이블 끝 -->
+
+        <!-- 하단 상품금액,배송비,총 결제금액 부분 -->
+        <div class="w-full h-12 border-b-2 border-black">
+        </div>
+        <div class="border-2 border-gray-300 p-4 text-2xl h-72 mt-16">
+            <div class="flex text-2xl h-1/4 pt-6"> 상품금액 :
+                <div class="pl-3" id="totalPrice">
+                        [[${ShoppingDetailPrice.get(0)}]]
+                </div>
+            </div>
+            <div class="flex text-2xl h-1/4 pt-2">배송비 :
+                <div class="pl-3" id="deliveryPrice">
+                    [[${ShoppingDetailPrice.get(1)}]]
+                </div>
+            </div>
+
+            <div class="text-2xl h-1/4 pt-7">
+                <div class=" text-2xl h-1/4 pt-6 leading-loose border-t-2 border-gray-300">
+                    <div class="flex justify-between w-full h-20">
+                        <span class="flex">총 결제금액 :
+                            <div class="pl-3" id="finalTotalPrice">
+                                    [[${ShoppingDetailPrice.get(2)}]]
+                            </div>
+                        </span>
+                        <form th:action="|/product/orderSheetTmp|" method="GET">
+                            <button type="submit" class="text-right mr-6 border-2 text-white bg-black btn btn-active"
+                            >주문하기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mainthird>
+</main>
+</html>
+<!-- 체크박스 관련 시작 -->
+<script>
+        let chTotalPrice = [[${ShoppingDetailPrice.get(0)}]];
+        function checkPrice(price, chId){
+            let result = "";
+            if($("#chk"+chId).is(":checked")){
+                $.ajax({
+                    url : "/isChecked?check=1&id=" + chId,
+                    type : "GET",
+                    success : function(data){
+                        chTotalPrice += price;
+                        result = "<div class=\"pl-3\" id=\"totalPrice\">" + chTotalPrice +"</div>";
+                        $("#totalPrice").replaceWith(result);
+                        setPrice();
+                    }
+                });
+            }
+            else{
+                $.ajax({
+                    url : "/isChecked?check=0&id=" + chId,
+                    type : "GET",
+                    success : function(data){
+                        chTotalPrice -= price;
+                        result = "<div class=\"pl-3\" id=\"totalPrice\">" + chTotalPrice +"</div>";
+                        $("#totalPrice").replaceWith(result);
+                        setPrice();
+                    }
+                });
+            }
+        }
+
+        function setPrice(){
+            let shippingCost = 0
+            let result = "";
+            if(chTotalPrice >= 50000 || chTotalPrice === 0) {
+                result = "<div class=\"pl-3\" id=\"deliveryPrice\">0</div>";
+                $("#deliveryPrice").replaceWith(result);
+            }
+            else{
+                shippingCost = 3000;
+                result = "<div class=\"pl-3\" id=\"deliveryPrice\">3000</div>";
+                $("#deliveryPrice").replaceWith(result);
+
+            }
+            let finalTotalPrice = chTotalPrice + shippingCost;
+            result = "<div class=\"pl-3\" id=\"finalTotalPrice\">" + finalTotalPrice + "</div>";
+            $("#finalTotalPrice").replaceWith(result);
+        }
+
+
+        $(document).ready(function() {
+            $("#cbx_chkAll").click(function() {
+                if($("#cbx_chkAll").is(":checked")) {
+                $("input[type=checkbox]").prop("checked", true);
+                $.ajax({
+                        url : "/allChecked?check=1",
+                        type : "GET",
+                        success : function(data){
+                            console.log(data)
+                            chTotalPrice = data[0];
+                            result = "<div class=\"pl-3\" id=\"totalPrice\">" + chTotalPrice +"</div>";
+                            $("#totalPrice").replaceWith(result);
+                            setPrice();
+                        }
+                    });
+                }
+                else {
+                $("input[type=checkbox]").prop("checked", false);
+                $.ajax({
+                        url : "/allChecked?check=0",
+                        type : "GET",
+                        success : function(data){
+                            chTotalPrice = data[0];
+                            result = "<div class=\"pl-3\" id=\"totalPrice\">" + chTotalPrice +"</div>";
+                            $("#totalPrice").replaceWith(result);
+                            setPrice();
+                        }
+                    });
+                }
+            });
+        });
+</script>
+<!-- 체크박스 관련 끝 -->

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{common/layout}">
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<main layout:fragment="main">
+    <head>
+        <meta charset="utf-8" />
+        <title>Swiper demo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+
+
+    </head>
+
+    <body>
+    <!-- Swiper 이미지-->
+    <div class="swiper mySwiper mt-5 mb-5">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide slide01"><img src="https://image.brandi.me/home/banner/bannerImage_819539_1659513250.jpg"></div>
+            <div class="swiper-slide slide02"><img src="https://image.brandi.me/home/banner/bannerImage_3_1659512163.jpg"></div>
+            <div class="swiper-slide slide03"><img src="https://image.brandi.me/home/banner/bannerImage_7_1659322032.jpg"></div>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- 대표 상품 이미지 및 상세보기 페이지 가기-->
+    <div class="swiper flex">
+        <div class="swiper-slide1 flex">
+            <a href="/product/detail?id=1"><img src="/product_image/더스티 오픈숄더 크롭 티셔츠/더스티 오프숄더 크롭 티셔츠 메인 이미지.jpg"></a>
+            <a href="/product/detail?id=1"><img src="/product_image/더스티 오픈숄더 크롭 티셔츠/더스티 오프숄더 크롭 티셔츠 메인 이미지.jpg"></a>
+        </div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <!-- Initialize Swiper -->
+    <script>
+      var swiper = new Swiper(".mySwiper", {
+      loop: true,
+        spaceBetween: 30,
+        centeredSlides: true,
+        autoplay: {
+          delay: 2500,
+          disableOnInteraction: false,
+        },
+
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        },
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+      });
+
+    </script>
+    </body>
+</main>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{common/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Q&A detail</title>
+</head>
+
+
+<main layout:fragment="main">
+
+            <div class="flex flex-wrap items-center justify-center h-full text-gray-800">
+                <div class="w-full">
+            <!-- 제목 시작 -->
+            <table class="table w-full justify-center my-10">
+                <thead>
+                <tr class="w-auto h-16">
+                    <th class="py-3 text-xl text-center bg-gray-100">작성자</th>
+                    <td class="py-3 text-lg whitespace-pre-line font-normal" th:text="${question.mallUser.name}"></td>
+                </tr>
+                <tr class="w-full h-16">
+                    <th class="py-3 text-xl text-center bg-gray-100">작성 날짜</th>
+                    <td class="py-3 text-lg whitespace-pre-line font-normal" th:text="${(question.createDate).toString().substring(0,10)}"></td>
+                </tr>
+                <tr class="w-full h-16">
+                    <th class="py-3 text-xl text-center bg-gray-100">제목</th>
+                    <td class="py-3 text-lg whitespace-pre-line font-normal" th:text="${question.subject}" name="subject"></td>
+                </tr>
+                <tr class="w-full h-16">
+                    <th class="py-3 text-xl text-center bg-gray-100">질문내용</th>
+                    <td class="py-3 text-lg whitespace-pre-line font-normal" th:text="${question.content}" name="content" id="content"></th>
+                </tr>
+                </thead>
+            </table>
+            <!-- 내용 끝 -->
+
+                    <div>
+                        <form id="questionATag">
+                            <div class="flex">
+                            <input type="hidden" name="mallUserId" th:value="${question.mallUser.id}">
+                            <input type="hidden" name="questionId" th:value="${question.id}">
+                            <a class="flex w-1/2 text-right border-2 text-white bg-black btn btn-active mr-1" href="javascript:questionModify();" >수정</a>
+                            <a class="flex w-1/2 text-right border-2 text-white bg-black btn btn-active" onclick="if ( confirm('정말로 삭제하겠습니까?') == false ) return false;" href="javascript:questionDel();" >글 삭제</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-16">
+                        <!-- 답변 목록 시작 -->
+                        <table>
+                            <tbody>
+                            <tr>
+                                <ul class="text-base text-center bg-gray-200 rounded-lg h-6 leading-6">
+                                    <li>답변</li>
+                                </ul>
+                            </tr>
+                            <tr class="mt-2">
+                                <ul class="list-image ml-8">
+                                <li class="text-xl my-2" th:each="questionAnswer : ${question.questionAnswerList}" th:text="${questionAnswer.body}"></li>
+                                </ul>
+                            </tr>
+                            </tbody>
+                    </table>
+                        <!-- 답변 목록 끝 -->
+
+                        <form th:action="@{|/answer/create/${question.id}|}" method="post">
+                            <textarea class="mt-8 w-full border border-gray-300 border-solid rounded focus:text-gray-700" name="body" id="body" rows="5"></textarea>
+                            <div class="w-full text-end">
+                                <input type="submit" value="답변등록" class="text-right text-white bg-black btn btn-active">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+    <script fragment="script" type='text/javascript'>
+    function questionDel(){
+        questionATag.action = "/question/delete";
+        questionATag.method = "Get";
+        questionATag.submit();
+    }
+    function questionModify(){
+        questionATag.action = "/question/modify";
+        questionATag.method = "Get";
+        questionATag.submit();
+    }
+    </script>
+
+    
+</main>
+</html>
+

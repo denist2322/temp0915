@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{common/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>페이지 이름</title>
+</head>
+
+<main layout:fragment="main">
+    <div class="max-width">
+    <div class="con grid">
+        <section class="grid">
+            <!-- 상품이 존재하지 않을 경우 -->
+            <div th:if="${productList.size() == 0}" class="con h-96 grid justify-center items-center text-lg">
+                현재 상품이 존재하지 않습니다.
+            </div>
+
+            <!-- 상품 정보 시작 -->
+            <div th:if="${productList.size() != 0}" class="grid grid-cols-4">
+                <div th:each="product : ${productList}">
+                        <script layout:fragment="script" type='text/javascript'>
+                             /*<![CDATA[*/
+                                 function comma(){
+                                     let number = [[${product.price}]];
+                                     document.write(number.toLocaleString());
+                                 }
+                                 function priceLoad(){
+                                     let price = [[${product.price}]];
+                                     let discount = 1 - [[${product.discount}]] / 100;
+                                     let result = price * discount;
+                                     document.write(result.toLocaleString());
+                                 }
+
+                             /*]]*/
+                        </script>
+                    <div class="h-auto p-5 box-border mt-2.5">
+                        <a th:href="'/product/detail?id='+${product.id}">
+                            <img th:src="'/product_image/'+${product.title}+'/'+${product.mainImage}" alt="옷"
+                                 class="product_img3 rounded-lg">
+                            <div class="overflow-hidden whitespace-pre-line overflow-ellipsis text-lg text-center">[[${product.title}]]
+                            </div>
+                            <div class="flex whitespace-normal overflow-ellipsis text-lg justify-center">
+                                <strong class="text-xl font-bold text-red-500 mr-2">[[${product.discount}]]%</strong>
+                                <em class="text-xl font-bold line-through comma mr-2">
+                                    <script layout:fragment="script" type='text/javascript'>
+                                        comma()
+                                    </script>
+                                </em>
+                                <em id="result" class="text-xl font-bold">
+                                    <script layout:fragment="script" type='text/javascript'>
+                                         priceLoad();
+                                    </script>
+                                </em>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- 상품 정보 끝 -->
+        </section>
+    </div>
+    </div>
+</main>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{common/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>페이지 이름</title>
+</head>
+
+<main layout:fragment="main">
+    <!-- 스크립트 구문  -->
+    <script layout:fragment="script" type='text/javascript'>
+        function order(){
+            orderForm.action = "/product/orderSheetTmp";
+            orderForm.method = "get";
+            orderForm.submit();
+        }
+
+        function cart(){
+            orderForm.action = "/addCart";
+            orderForm.method = "get";
+            orderForm.submit();
+        }
+
+        // 옷의 색상을 선택하면 화면에 보여줌.
+         $(function() {
+            $("#color").change(function() {
+                $("#resultColor").css("background", $("option:selected").val().toLowerCase());
+           });
+         });
+
+         // 선택한 사이즈 화면에 보여줌
+         $(function() {
+            $("#size").change(function() {
+                let removeColor = $("#color").val();
+                let result = $("option:selected").text().replace(removeColor,"");
+                result = result.replace("색상을 선택하세요.","");
+                if(result != "사이즈를 선택하세요."){
+                    $("#resultSize").text(result);
+                }
+           });
+         });
+
+
+         // 원화는 세자리마다 콤마를 찍는다.
+         /*<![CDATA[*/
+         function commaPrice(){
+              let price = [[${product.price}]];
+              document.write(price.toLocaleString());
+
+         }
+
+         function commaDisPrice(){
+              let discountPrice = [[${discountPrice}]]
+              document.write(discountPrice.toLocaleString());
+         }
+         /*]]*/
+
+    </script>
+    <div class="max-w-screen-lg mx-auto">
+
+        <!-- 상품 정보 시작 -->
+        <form class="flex justify-center w-full px-5 pt-20 pb-20" id="orderForm">
+            <input type="hidden" name="productsId" th:value="${product.id}"/>
+            <input type="hidden" name="orderImage" th:value="${product.mainImage}"/>
+            <input type="hidden" name="orderTitle" th:value="${product.title}"/>
+            <input type="hidden" name="orderPrice" th:value="${discountPrice}"/>
+
+            <!-- 상품 메인 이미지 시작 -->
+            <div class="w-1/2">
+                <img th:src="'/product_image/'+${product.title}+'/'+${product.mainImage}" alt="상품 이미지"
+                     class="border product_img2">
+            </div>
+            <!-- 상품 메인 이미지 끝 -->
+
+            <!-- 상품 정보 시작 -->
+            <div class="w-1/2 ">
+                <div class="py-2">
+                    <h2 class="text-3xl ">[[${product.title}]]</h2>
+                </div>
+                <div class="flex justify-between mt-2">
+                    <div class="box-border">
+                        <span class="items-center mr-2 text-2xl font-bold text-red-500">[[${product.discount}]]%</span>
+                        <span class="mr-2 text-2xl font-bold">\
+                            <script layout:fragment="script" type='text/javascript'>commaDisPrice()</script>
+                        </span>
+                        <span class="text-lg text-gray-500 line-through">
+                            <script layout:fragment="script" type='text/javascript'>commaPrice()</script>
+                        </span>
+                    </div>
+                </div>
+                <div class="box-border h-20 px-4 mt-3 border border-gray-400">
+                    <div class="flex items-center justify-between h-full">
+                        <span class="text-xl font-bold">최종 예상 구매가</span>
+                        <input class="text-right text-xl text-red-300 focus:outline-none" th:value="${discountPrice}"
+                               readonly/>
+                    </div>
+                </div>
+
+                <div class="box-border w-full mt-4 border border-black">
+                    <select name="orderColor" id="color" class="w-full">
+                        <option value="no">색상을 선택하세요.</option>
+                        <div th:each="color : ${product.productColorList}" id="selectColor">
+                            <option th:value="${color.productColor}" onclick="javascript:changeStyle()">
+                                [[${color.productColor}]]
+                            </option>
+                        </div>
+                    </select>
+                </div>
+
+                <div class="box-border w-full mt-4 border border-black">
+                    <select name="orderSize" id="size" class="w-full">
+                        <option value="no">사이즈를 선택하세요.</option>
+                        <div th:each="size : ${product.productSizeList}">
+                            <option th:value="${size.productSize}">[[${size.productSize}]]</option>
+                        </div>
+                    </select>
+                </div>
+
+                <div class="mt-4 relative box-border px-5 py-4 bg-gray-200">
+                    <strong class="block mr-10 text-lg">색상 / 사이즈</strong>
+                    <div class="flex justify-between w-full table-fixed mt-8 box-border">
+                        <div class="flex w-10">
+                            <input type="text" class="block w-8 h-8 border border-gray-200 mr-5" id="resultColor">
+                            <div id="resultSize" class="flex items-center">
+                            </div>
+
+                        </div>
+                        <div class="flex align-middle">
+                            <button type="button" onclick="minus()"
+                                   class="w-8 h-8 bg-white cursor-pointer text-2xl"/>-</button>
+                            <div id="count">
+                            <input type="text" id="inputCount" name="orderCounter" class="w-8 h-8 bg-white text-black text-bold font-xl text-center focus:outline-none"
+                                   value="1" readonly>
+                            </div>
+                            <button type="button" onclick="plus()"
+                                   class="w-8 h-8 bg-white cursor-pointer text-2xl"/>+</button>
+                        </div>
+                        <script>
+                        var count = 1;
+                        var result = ""
+                        function minus() {
+                        if(count > 1) {
+                        count--;
+
+                        result = "<div id=\"count\">";
+                        result += "<input type=\"text\" id=\"inputCount\" name=\"orderCounter\" class=\"w-8 h-8 bg-white text-black text-bold font-xl text-center focus:outline-none\" value=\"" + count + "\" readonly>";
+                        result += "<div>";
+
+                        $("#count").replaceWith(result);
+                        replace();
+                         }
+                        }
+
+                        function plus() {
+                        count++;
+                        result = "<div id=\"count\">";
+                        result += "<input type=\"text\" id=\"inputCount\" name=\"orderCounter\" class=\"w-8 h-8 bg-white text-black text-bold font-xl text-center focus:outline-none\" value=\"" + count + "\" readonly>";
+                        result += "<div>";
+
+                        $("#count").replaceWith(result);
+                        replace();
+                        }
+
+                        </script>
+                        <input type="text" id="totalPrice" name="orderTotalPrice" class="flex px-auto py-2 box-border bg-gray-200 font-bold text-right focus:outline-none"
+                               th:value="${discountPrice}" readonly/>
+                        <script>
+                            function replace(){
+                                    var count = $("#inputCount").val();
+                                    var price = [[${discountPrice}]];
+                                    var result = "<input type=\"text\" id=\"totalPrice\" name=\"orderTotalPrice\" class=\"flex px-auto py-2 box-border bg-gray-200 font-bold text-right focus:outline-none\" value=\"" + (count*price) + "\"readonly/>";
+                                    $("#totalPrice").replaceWith(result);
+                            }
+                        </script>
+                    </div>
+                </div>
+                <!-- 상품 정보 끝 -->
+
+                <!-- 장비구니 및 구매하기 버튼 시작(상품을 선택 안할 시 작동 안함) -->
+                <div class="box-border flex justify-center w-full mt-5">
+                    <a href="javascript:cart()" class="items-center p-3 text-white bg-gray-700 mr-4 btn">장바구니</a>
+                    <a href="javascript:order()" class="items-center p-3 text-white bg-black mr-4 btn">구매하기</a>
+                </div>
+                <!-- 장바구니 및 구매하기 버튼 끝 -->
+
+            </div>
+        </form>
+        <!-- 상품 정보 끝 -->
+
+        <!-- 상품상세 이미지 시작 -->
+        <section class="max-w-screen-lg h-full">
+
+            <div class="flex">
+                <div class="box-border pt-5 m-auto">
+
+                    <div th:each="image : ${product.productImageList}">
+                        <!--foreach _ img-->
+                        <img th:src="'/product_image/'+${product.title}+'/'+${image.images}" alt="상세이미지">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 상품상세 이미지 끝 -->
+    </div>
+</main>
+</html>
