@@ -3,20 +3,8 @@ package com.mysite.shoppingMall.Ut;
 import javax.servlet.http.HttpSession;
 
 public class Ut {
-
-    public static boolean empty(Object obj) {
-        if (obj == null) {
-            return true;
-        }
-        if (obj instanceof String == false) {
-            return true;
-        }
-
-        String str = (String) obj;
-
-        return str.trim().length() == 0;
-    }
-
+    
+    // 로그인 정보
     public static IsLogined isLogined(HttpSession session) {
         IsLogined result = new IsLogined();
         // 관리자 0 유저 1 => 권한
@@ -35,6 +23,7 @@ public class Ut {
         return result;
     }
 
+    // 이메일을 @ 기준으로 나눠준다.
     public static String[] splitEmail(String email){
         if(email.indexOf("@") == -1){
             return null;
@@ -45,16 +34,7 @@ public class Ut {
         return EmailTemp;
     }
 
-    public static String[] splitAddress(String address){
-        if(address.indexOf("**") == -1){
-            return null;
-        }
-
-        String[] AddressTemp = address.split("\\*\\*");
-
-        return AddressTemp;
-    }
-
+    // 전화번호를 - 기준으로 나눠준다.
     public static String[] splitCellPhone(String phone){
         if(phone.indexOf("-") == -1){
             return null;
@@ -65,9 +45,19 @@ public class Ut {
         return phoneTemp;
     }
 
-    public static String[] splitStar(String color) {
-        String[] AddressTemp = color.split("\\*\\*");
+    // ** 을 구분자로 하는 문자열을 ** 기준으로 나눠준다.
+    public static String[] splitStar(String str) {
+        String[] AddressTemp = str.split("\\*\\*");
 
         return AddressTemp;
+    }
+
+    // 관리자인지를 확인한다.
+    public static String isAdmin(HttpSession session) {
+        IsLogined islogined = Ut.isLogined(session);
+        if(islogined.getAuthority() == null){
+            return "notAdmin";
+        }
+        return "admin";
     }
 }

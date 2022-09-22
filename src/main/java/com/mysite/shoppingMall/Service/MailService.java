@@ -1,13 +1,12 @@
 package com.mysite.shoppingMall.Service;
 
-import com.mysite.shoppingMall.Form.FindPwForm;
-import com.mysite.shoppingMall.Repository.UserRepository;
-import com.mysite.shoppingMall.Form.MailDto;
 import com.mysite.shoppingMall.Entity.MallUser;
+import com.mysite.shoppingMall.Form.FindPwForm;
+import com.mysite.shoppingMall.Form.MailDto;
+import com.mysite.shoppingMall.Repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,11 +14,9 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class MailService {
-    private JavaMailSender mailSender;
     private UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private static final String FROM_ADDRESS = "no_repy@boki.com";
 
     // == 회원가입 메일 발송 및 발송 확인 ==
     @Async
@@ -55,6 +52,7 @@ public class MailService {
         return randomAuthentication;
     }
 
+    // == 메일이 존재하는지 확인한다. ==
     public boolean findEmail(String email) {
         if (!userRepository.existsByuserEmail(email)) {
             return false;
@@ -63,18 +61,20 @@ public class MailService {
         return true;
     }
 
-
+    // == 비밀번호가 실제로 존재했을 경우 비밀번호를 변경하고 메일을 발송한다. ==
     public void findPw(FindPwForm findPwForm, MailDto mailDto) {
         findPwForm.setIsSuccess("success");
+        // 임시 번호 발급
         String passwordTmp = RandomStringUtils.randomAlphanumeric(5);
         MallUser mallUser = userService.getUser(findPwForm.getEmail());
+        // 임시로 발급된 번호를 암호화하여 저장
         mallUser.setUserPassword(passwordEncoder.encode(passwordTmp));
         userRepository.save(mallUser);
         mailDto.setTitle("(쇼핑몰 SKIES)새로운 비밀번호입니다.");
         mailDto.setMessage("아래 비밀번호로 로그인 후 마이페이지에서 변경해주세요.");
-//        System.out.println(passwordTmp);
     }
 
+    // == 메일이 인증이 완료되었는지의 여부를 판단함. ==
     public void isSuccess(int i, MailDto mailDto) {
         if (i == 1) {
             mailDto.setSuccess("Success");
@@ -85,6 +85,7 @@ public class MailService {
         }
     }
 
+    // == 비밀번호 찾기가 정상적으로 수행 되었는지를 확인함.
     public void findPwForm(FindPwForm findPwForm) {
         findPwForm.setIsSuccess("fail");
     }

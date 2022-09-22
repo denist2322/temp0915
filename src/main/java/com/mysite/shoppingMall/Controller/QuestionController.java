@@ -1,13 +1,13 @@
 package com.mysite.shoppingMall.Controller;
 
-import com.mysite.shoppingMall.Ut.IsLogined;
 import com.mysite.shoppingMall.Entity.Question;
 import com.mysite.shoppingMall.Form.QuestionForm;
 import com.mysite.shoppingMall.Repository.QuestionRepository;
 import com.mysite.shoppingMall.Repository.UserRepository;
 import com.mysite.shoppingMall.Service.QuestionService;
+import com.mysite.shoppingMall.Ut.IsLogined;
 import com.mysite.shoppingMall.Ut.Ut;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,23 +18,23 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/question")
 public class QuestionController {
-    @Autowired
-    private QuestionRepository questionRepository;
-    @Autowired
-    private QuestionService questionService;
-    @Autowired
-    private UserRepository userRepository;
+    private final QuestionRepository questionRepository;
+    private final QuestionService questionService;
+    private final UserRepository userRepository;
 
 
-    //C qna 게시글 생성 ==============================================
+    // == QnA 질문 게시글 생성 ==
+    // 질문 작성 페이지 조회
     @GetMapping("/doWrite")
     public String doWrite(QuestionForm questionForm){
 
         return "QnA/write.html";
     }
-
+    
+    // 질문 작성 수행
     @PostMapping("/doWrite")
     public String doWrite(@Valid QuestionForm questionForm, BindingResult bindingResult, HttpSession session, Model model){
         if(bindingResult.hasErrors()){
@@ -49,7 +49,7 @@ public class QuestionController {
     }
 
 
-    // qna 게시글 조회 ==============================================
+    // == QnA 게시글 조회 ==
     @RequestMapping("/list")
     public String showQuestion(Model model, @RequestParam(value="page", defaultValue="0") int pageNo){
         Page<Question> paging = this.questionService.getList(pageNo);
@@ -58,7 +58,7 @@ public class QuestionController {
         return "QnA/qna.html";
     }
 
-    // qna 게시글 단건 조회 ==============================================
+    // == QnA 게시글 단건 조회 ==
     @RequestMapping("/detail/{id}")
     public String showDetail(Model model, @PathVariable("id") Integer id, HttpSession session){
         IsLogined isLogined = Ut.isLogined(session);
@@ -76,7 +76,7 @@ public class QuestionController {
         return "common/js.html";
     }
     
-    // 검색 ==========================================================
+    // == 질문 게시글 검색 ==
     @RequestMapping("/detail")
     public String findDetail(@RequestParam(value="page", defaultValue="0") int page,String kw,Model model){
         Page<Question> paging = this.questionService.keywordQuestion(page, kw);
@@ -85,7 +85,8 @@ public class QuestionController {
         return "QnA/qna.html";
     }
 
-    // 게시글 수정 ==========================================================
+    // == 질문 게시글 수정 ==
+    // 수정 페이지 조회
     @RequestMapping("/modify")
     public String questionModify(Integer questionId, Integer mallUserId, Model model, HttpSession session){
         IsLogined isLogined = Ut.isLogined(session); // 세션 사용해서 로그인 확인
@@ -110,13 +111,14 @@ public class QuestionController {
         return "QnA/boardmodify.html";
     }
 
-    // 수정페이지 ==========================================================
+    // 질문 게시글 실제로 수정
     @PostMapping("/update/{id}")
     public String questionUpdate(@PathVariable("id") Integer id, QuestionForm questionForm){ // questionForm 에서 제목이랑 내용을 받아옴
         Question questionTemp = questionService.doUpdate(id, questionForm);
         return "redirect:/question/list";
     }
-
+    
+    // == 질문 게시글 삭제 ==
     @RequestMapping("/delete")
     public String doDelete(Integer questionId, Integer mallUserId, HttpSession session, Model model){
         IsLogined isLogined = Ut.isLogined(session);
